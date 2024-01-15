@@ -97,23 +97,6 @@ async function run() {
   });
 
 
-  //here it can be done by query but i try it in another way
-  //get blogs by categories
-app.get("/blogs/:category",  async(req, res)=>{
-
-console.log(req.params.category)
-  
-let query={}
-if (req.params.category) {
-      query = {
-        category: req.params?.category,
-      };
-}
-  const result = await blogsCollection.find(query).toArray();
-  res.send(result);
-  
-})
-
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
