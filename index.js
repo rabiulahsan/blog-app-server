@@ -33,7 +33,12 @@ async function run() {
     //database collection
     const usersCollection = client.db('blog-application').collection('users');
     const blogsCollection = client.db('blog-application').collection('blogs');
+
     //get all users
+  app.get("/users", async (req, res) => {
+    const result = await usersCollection.find().toArray();
+    res.send(result);
+  });
 
    //get all blogs
    app.get("/blogs", async (req, res) => {
