@@ -10,22 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 
-//database api 
-
-
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.9ylecqg.mongodb.net/?retryWrites=true&w=majority`;
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-//create api for JWT verification
+//create  verifyJWT function
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
   if (!authorization) {
@@ -43,6 +28,21 @@ const verifyJWT = (req, res, next) => {
   })
 }
 
+
+//database api 
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.9ylecqg.mongodb.net/?retryWrites=true&w=majority`;
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -51,6 +51,15 @@ async function run() {
     //database collection
     const usersCollection = client.db('blog-application').collection('users');
     const blogsCollection = client.db('blog-application').collection('blogs');
+
+
+    //create api for JWT token
+    app.post('/jwt', (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
+    
+      res.send({ token })
+    })
 
     //get all users
   app.get("/users", async (req, res) => {
