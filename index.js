@@ -67,6 +67,20 @@ async function run() {
     res.send(result);
   });
 
+  // post a users 
+  app.post('/users', async(req, res)=>{
+  const user = req.body;
+      const query = { email: user.email }
+      const exist = await usersCollection.findOne(query);
+
+      if (exist) {
+        return res.send({ message: 'user already exists' })
+      }
+
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+})
+
    //get all blogs
    app.get("/blogs", async (req, res) => {
     const result = await blogsCollection.find().toArray();
