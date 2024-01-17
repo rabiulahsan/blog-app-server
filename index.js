@@ -51,6 +51,7 @@ async function run() {
     //database collection
     const usersCollection = client.db('blog-application').collection('users');
     const blogsCollection = client.db('blog-application').collection('blogs');
+    const favouritesCollection = client.db('blog-application').collection('favourites');
 
 
     //create api for JWT token
@@ -95,6 +96,14 @@ async function run() {
     const result = await blogsCollection.findOne(query);
     res.send(result);
   });
+
+  //saved favourite post
+app.post('/favourites', verifyJWT, async(req, res)=>{
+  const selectedBlog =req.body
+  console.log(selectedBlog);
+  const result = await favouritesCollection.insertOne(selectedBlog)
+  res.send(result)
+})
 
 
     // Send a ping to confirm a successful connection
