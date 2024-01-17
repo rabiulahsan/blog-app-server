@@ -105,6 +105,13 @@ app.post('/favourites', verifyJWT, async(req, res)=>{
   res.send(result)
 })
 
+//delete  selected post from favourite
+app.delete('/favourites/:id', verifyJWT, async (req, res)=>{
+  const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await favouritesCollection.deleteOne(query);
+      res.send(result);
+})
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
