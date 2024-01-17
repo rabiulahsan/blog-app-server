@@ -9,24 +9,6 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-//create  verifyJWT function
-const verifyJWT = (req, res, next) => {
-  const authorization = req.headers.authorization;
-  if (!authorization) {
-    return res.status(401).send({ error: true, message: 'unauthorized access' });
-  }
-  // bearer token
-  const token = authorization.split(' ')[1];
-
-  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
-    if (err) {
-      return res.status(401).send({ error: true, message: 'unauthorized access' })
-    }
-    req.decoded = decoded;
-    next();
-  })
-}
-
 
 //database api 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -42,6 +24,29 @@ const client = new MongoClient(uri, {
   }
 });
 
+
+//create  verifyJWT function
+const verifyJWT = (req, res, next) => {
+  console.log(req.headers);
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res.status(401).send({ error: true, message: 'unauthorized access' });
+    
+  }
+
+  // bearer token
+  const token = authorization.split(' ')[1];
+  // console.log(token);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ error: true, message: 'unauthorized access' })
+     
+    }
+    req.decoded = decoded;
+    next();
+  })
+}
 
 async function run() {
   try {
@@ -88,53 +93,64 @@ async function run() {
     res.send(result);
   });
 
+  
+//get all favourite post
+
+app.get("/favourites", verifyJWT, async (req, res) => {
+  const userEmail = req.query.email;
+console.log(userEmail);
+
+  if (!userEmail) {
+    return res.status(400).send({ error: true, message: 'Email is required' });
+  }
+
+  const decodedEmail = req.decoded.email;
+
+  if (userEmail !== decodedEmail) {
+    return res.status(403).send({ error: true, message: 'Forbidden access' });
+  }
+
+  const query = {
+    savesUserEmail: userEmail,
+  };
+
+  const result = await favouritesCollection.find(query).toArray();
+  res.send(result);
+});
+
+   
+
    //get specific blog by id
    app.get("/:id", async (req, res) => {
     const id = req.params.id;
+    console.log(req.params);
     console.log(id);
     const query = { _id: new ObjectId(id) };
     const result = await blogsCollection.findOne(query);
     res.send(result);
   });
 
+
+  
+
   //saved favourite post
 app.post('/favourites', verifyJWT, async(req, res)=>{
   const selectedBlog =req.body
-  console.log(selectedBlog);
+  // console.log(selectedBlog);
   const result = await favouritesCollection.insertOne(selectedBlog)
   res.send(result)
 })
 
 //delete  selected post from favourite
 app.delete('/favourites/:id', verifyJWT, async (req, res)=>{
-  const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+
+  const blogsID = req.params.id;
+      const query = {blogsID: blogsID}
       const result = await favouritesCollection.deleteOne(query);
       res.send(result);
 })
 
-//get all favourite post
-app.get('/favourites', verifyJWT, async(req, res)=>{
-  const userEmail = req.query.email;
-console.log(userEmail);
 
-  if (!userEmail) {
-    res.send([]);
-  }
-  const decodedEmail = req.decoded.email;
-  if (userEmail !== decodedEmail) {
-    return res.status(403).send({ error: true, message: 'forbidden access' })
-  }
-let query={}
-if (req.query?.email) {
-      query = {
-        email: req.query.email,
-      };
-}
-  const result = await favouritesCollection.find(query).toArray();
-  res.send(result);
-  
-})
 
 
     // Send a ping to confirm a successful connection
