@@ -102,8 +102,16 @@ app.post('/blogs', verifyJWT , async(req, res)=>{
   res.send(result)
 })
 
+//delete a blog
+app.delete("/blogs/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await blogsCollection.deleteOne(query);
+  res.send(result);
+});
+
   //update a blog
-  app.put("blogs/:id", verifyJWT, async (req, res) => {
+  app.put("/blogs/:id", verifyJWT, async (req, res) => {
     const id = req.params.id;
     const blogDetails = req.body;
 
@@ -142,7 +150,7 @@ console.log(writerEmail);
   }
 
   const query = {
-    savesUserEmail: writerEmail,
+    writer: writerEmail,
     
   };
 
