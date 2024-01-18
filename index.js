@@ -102,6 +102,28 @@ app.post('/blogs', verifyJWT , async(req, res)=>{
   res.send(result)
 })
 
+  //update a blog
+  app.put("blogs/:id", async (req, res) => {
+    const id = req.params.id;
+    const blogDetails = req.body;
+
+    console.log(id, user);
+
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updatedBlogDetails = {
+      $set: {
+        ...blogDetails,
+      },
+    };
+
+    const result = await blogsCollection.updateOne(
+      filter,
+      updatedBlogDetails,
+      options
+    );
+    res.send(result);
+  });
 
   
 //get all favourite post
