@@ -103,7 +103,7 @@ app.post('/blogs', verifyJWT , async(req, res)=>{
 })
 
   //update a blog
-  app.put("blogs/:id", async (req, res) => {
+  app.put("blogs/:id", verifyJWT, async (req, res) => {
     const id = req.params.id;
     const blogDetails = req.body;
 
@@ -124,6 +124,32 @@ app.post('/blogs', verifyJWT , async(req, res)=>{
     );
     res.send(result);
   });
+ 
+//get all wrttien post for a user
+
+app.get("/myblogs", verifyJWT, async (req, res) => {
+  const writerEmail = req.query.email;
+console.log(writerEmail);
+
+  if (!writerEmail) {
+    return res.status(400).send({ error: true, message: 'Email is required' });
+  }
+
+  const decodedEmail = req.decoded.email;
+
+  if (writerEmail !== decodedEmail) {
+    return res.status(403).send({ error: true, message: 'Forbidden access' });
+  }
+
+  const query = {
+    savesUserEmail: writerEmail,
+    
+  };
+
+  const result = await blogsCollection.find(query).toArray();
+  res.send(result);
+});
+  
 
   
 //get all favourite post
