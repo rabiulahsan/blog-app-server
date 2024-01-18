@@ -130,9 +130,23 @@ console.log(searchValue);
   }
 
   // Perform the search logic on your data
- const searchResults = await blogsCollection.find({
-  description: { $regex: new RegExp(searchValue, 'i') }
-}).toArray();
+//  const searchResults = await blogsCollection.find({
+//   description: { $regex: new RegExp(searchValue, 'i') }
+// }).toArray();
+
+//data search by keyword
+const searchResults = await blogsCollection
+  .find({
+    $or: [
+      { description: { $regex: new RegExp(searchValue, 'i') } },
+      { placeName: { $regex: new RegExp(searchValue, 'i') } },
+      { location: { $regex: new RegExp(searchValue, 'i') } },
+      { category: { $regex: new RegExp(searchValue, 'i') } },
+      { country: { $regex: new RegExp(searchValue, 'i') } },
+    ],
+  })
+  .toArray();
+
 
   res.send(searchResults)
 })
