@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 
 //create  verifyJWT function
 const verifyJWT = (req, res, next) => {
-  console.log(req.headers);
+  // console.log(req.headers);
   const authorization = req.headers.authorization;
   if (!authorization) {
     return res.status(401).send({ error: true, message: 'unauthorized access' });
@@ -112,6 +112,7 @@ console.log(userEmail);
 
   const query = {
     savesUserEmail: userEmail,
+    
   };
 
   const result = await favouritesCollection.find(query).toArray();
@@ -119,11 +120,28 @@ console.log(userEmail);
 });
 
    
+//getting search data
+app.get('/search' , async(req, res)=>{
+  const searchValue = req.query.value;
+console.log(searchValue);
+
+  if (!searchValue) {
+    return res.status(400).json({ error: 'Search value is required' });
+  }
+
+  // Perform the search logic on your data
+ const searchResults = await blogsCollection.find({
+  description: { $regex: new RegExp(searchValue, 'i') }
+}).toArray();
+
+  res.send(searchResults)
+})
+
 
    //get specific blog by id
    app.get("/:id", async (req, res) => {
     const id = req.params.id;
-    console.log(req.params);
+    // console.log(req.params);
     console.log(id);
     const query = { _id: new ObjectId(id) };
     const result = await blogsCollection.findOne(query);
