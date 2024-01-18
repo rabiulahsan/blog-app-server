@@ -94,6 +94,16 @@ async function run() {
   });
 
   
+//post a new blog
+
+app.post('/blogs', verifyJWT , async(req, res)=>{
+  const newBlog =req.body
+  const result = await blogsCollection.insertOne(newClass)
+  res.send(result)
+})
+
+
+  
 //get all favourite post
 
 app.get("/favourites", verifyJWT, async (req, res) => {
